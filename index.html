@@ -1,0 +1,153 @@
+<!doctype html>
+
+<html lang="en" ng-app="patientApp">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Patient Information App</title>
+    <meta name="description" content="Patient Information App">
+    <meta name="author" content="Anirvachan Ballal">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <!-- Bootstrap Date-Picker Plugin -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css" />
+
+    <!-- AngularJS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/3.6.6/firebase.js"></script>
+
+    <!-- AngularFire -->
+    <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+  <![endif]-->
+
+</head>
+
+<body ng-cloak>
+    <div class="container-fluid">
+        <h2 ng-show="!showListing" class="form-banner">Patient information app: AngularJS + Firebase</h2>
+
+        <div class="row" ng-show="!showListing">
+            <div class="col-md-3"></div>
+            <div class="col-md-6 form-body-styling">
+                <form class="form-horizontal" name="patientForm" ng-controller="formController" ng-submit="submitForm()">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4" for="firstname">First Name:</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="firstname" ng-model="firstname" class="form-control" id="firstname" placeholder="Enter first name" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4" for="lastname">Last Name:</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="lastname" ng-model="lastname" class="form-control" id="lastname" placeholder="Enter last name" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4" for="age">Age:</label>
+                        <div class="col-sm-8">
+                            <input type="number" name="age" ng-model="age" class="form-control" id="age" placeholder="Enter age" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4" for="dob">Date Of Birth:</label>
+                        <div class="col-sm-8">
+                            <input type="date" name="dob" ng-model="dob" class="form-control" id="dob" placeholder="MM/DD/YY" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4" for="gender">Gender:</label>
+                        <div class="col-sm-8">
+                            <select name="gender" ng-model="gender" class="form-control" id="gender" placeholder="Enter gender" required>
+                                <option disabled selected>Select your gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Unknown">I'd rather not say</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4" for="phone">Phone:</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="phone" ng-model="phone" class="form-control" ng-pattern="/[0-9]{10}/" id="phone" placeholder="Enter phone number" required>
+                        </div>
+                    </div>
+                    <div class="row" style="margin:20px" ng-show="showInvalids && !patientForm.phone.$valid">
+                        <div class="col-sm-4 col-md-4"></div>
+                        <div class="col-sm-8 col-md-8">
+                            <p>
+                                <span class="alert alert-danger">
+								Please enter a 10 digit number.
+							</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4" for="comment">Comment:</label>
+                        <div class="col-sm-8">
+                            <textarea style="height:100px" type="text" name="comment" ng-model="comment" class="form-control" id="comment" placeholder="Enter comment"></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4"></div>
+                        <div class="col-sm-8">
+                            <input type="submit" value="submit" ng-click="parser()" style="margin-bottom:20px" class="btn btn-lg btn-success">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+
+        <div class="row display-main" ng-controller="displayController" ng-show="showListing">
+            <div class="row display-banner">
+                <div class="col-sm-3 col-md-3"></div>
+                <h1 class="col-md-4 col-sm-4 display-header"> <i class="glyphicon glyphicon-plus cross-styling"></i> <span>Patient Directory</span></h1>
+                <div class="col-sm-5 col-md-5" style="padding-top:27px">
+                    <span>
+						<input type="text" style="padding-left:10px" ng-model="search" placeholder="Enter search term"><i class="glyphicon glyphicon-search search-styling"></i>
+					</span>
+                </div>
+            </div>
+            <div class="row" style="margin-top:25px">
+                <div class="col-md-3 col-sm-3">
+                </div>
+                <div class="col-md-5 col-sm-5">
+                    <div ng-repeat="item in dataModel" ng-hide="!item.firstname.includes(search)" class="patient-card">
+                        <h3 style="width:90%"><p class="name-styling">{{item.firstname}} {{item.lastname}}</p></h3>
+                        <p><strong>Date of Birth:</strong> {{item.dob | date: "mediumDate"}}</p>
+                        <p><strong>Age:</strong> {{item.age}}</p>
+                        <p><strong>Gender:</strong> {{item.gender}}</p>
+                        <p><strong>Phone:</strong> {{item.phone}}</p>
+                        <p><strong>Comment:</strong> {{item.comment}}</p>
+                    </div>
+                    <button class="btn btn-lg btn-warning" style="margin-bottom:20px" ng-click="addEntry()">Add another entry</button>
+                </div>
+                <div class="col-md-4 col-sm-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+
+</body>
+
+</html>
